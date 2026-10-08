@@ -1,26 +1,60 @@
-This is a Kotlin Multiplatform project targeting Android.
+# MemoryMatch
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Memory card matching game: flip cards and find all the pairs.
+Built with Kotlin Multiplatform and Compose Multiplatform (Android target).
+This was my first Kotlin Multiplatform project.
 
-### Running the apps
+<p>
+  <img src="docs/start.png" width="30%" alt="New game" />
+  <img src="docs/game.png" width="30%" alt="Game in progress" />
+</p>
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Features
 
-- Android app: `./gradlew :androidApp:assembleDebug`
+- Shuffled deck of cards in a grid
+- Flip cards to find matching pairs; mismatched cards flip back after a short delay
+- Matched pairs stay revealed
+- Restart button
 
-### Running tests
+## Tech stack
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+- Kotlin Multiplatform, Compose Multiplatform
+- Jetpack ViewModel with Kotlin Coroutines
+- StateFlow for UI state
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
+## Architecture
 
----
+- `domain`: `Card`, `GameState`, `GameIntent`, a game factory and a pure
+  `GameReducer` function that turns the current state and an intent into a new state.
+- `presentation`: `GameViewModel` exposes state as `StateFlow` using the
+  backing-property pattern. The delay before flipping mismatched cards back is a
+  side effect handled in the ViewModel with `viewModelScope`.
+- UI: `LazyVerticalGrid` with a stateless `CardItem` composable.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+The reducer is a pure function with no Android or Compose dependencies.
+
+## Project structure
+
+    shared/src/commonMain/kotlin/org/example/memorymatch/
+    ├── domain/         # models, intents, reducer, deck factory
+    └── presentation/   # ViewModel and UI components
+
+## Run
+
+Open the project in Android Studio and run the `androidApp` configuration,
+or build a debug APK:
+
+    ./gradlew :androidApp:assembleDebug
+
+## Status
+
+- Android: tested on an emulator and a physical device.
+- No unit tests for the game logic yet.
+- Only Android is set up in this project.
+
+## What I learned
+
+- Setting up a Kotlin Multiplatform project and building a debug APK
+- MVI-style state handling with a pure reducer
+- Compose basics: state, recomposition, lazy grids, stateless components
+- Handling a timed side effect with coroutines
